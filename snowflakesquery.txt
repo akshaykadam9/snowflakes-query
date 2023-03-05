@@ -122,3 +122,40 @@ files=('OrderDetails.csv')
 PATTERN = '.*Order.*';
 
 SELECT * FROM AK.PUBLIC.ORDERS
+
+
+#when we have to load a data of few columns using copy into command
+COPY INTO AK.PUBLIC.ORDERS_EX FROM 
+ (SELECT S.$1,S.$2,S.$3,S.$4 FROM @AKS.EXTERNAL_STAGES.AWS_STAGE S)
+ FILE_FORMAT=(
+ TYPE=csv
+ field_delimiter=','
+ skip_header=1
+ )
+ files=('OrderDetails.csv')
+ 
+ 
+ #TO CREATE A TABLE 
+CREATE OR REPLACE TABLE AK.PUBLIC.ORDERS_EX(
+ORDER_ID VARCHAR(30),
+AMOUNT INT,
+PROFIT INT,
+PROFITABLE_FLAG VARCHAR(50)
+);
+
+#TO LOAD A DATA USING CASE WHEN(in this we can add a column on the basis of numerical and do our customization)
+
+COPY INTO AK.AK1.ORDERS_AK
+ FROM (
+ SELECT S.$1,S.$2,S.$3,
+ CASE WHEN CAST(S.$3 AS INT) >0 THEN 'PROFITABLE' ELSE 'NOT_PROFITABLE' END,
+CASE WHEN CAST(S.$2 AS INT)>1000 THEN 'EXPENSIVE' ELSE 'INEXPENSIVE' END
+FROM @AKS.EXTERNAL_STAGES.AWS_STAGE S)
+FILE_FORMAT =(
+type= csv
+field_delimiter =','
+skip_header=1
+)
+
+
+files=('OrderDetails.csv')
