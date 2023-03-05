@@ -1,0 +1,124 @@
+#to create a warehouse-
+create warehouse prod_reporting with
+warehouse_size= SMALL
+auto_suspend= 600
+auto_resume=TRUE
+initially_suspended= false
+comment='sample reporting warehouse'
+ 
+#to create a database
+create database testdb
+
+#to drop a database
+drop database test_db_new
+
+create database first_db
+
+#to create a table in schema
+create table "FIRST_DB"."PUBLIC"."LOAN_PAYMENT"(
+"LOAN_ID" STRING,
+"loan_status" STRING,
+"Principal" STRING,
+"term" STRING,
+"effective_date" STRING,
+"due_date" STRING,
+"paid_off_time" STRING,
+"past_due_date" STRING,
+"age" STRING,
+"education" STRING,
+"gender" STRING
+
+);
+
+select * from LOAN_PAYMENT
+
+#to load a data into table using COPY INTO
+COPY INTO LOAN_PAYMENT FROM s3://bucketsnowflakes3/Loan_payments_data.csv
+file_format= (
+type=csv
+field_delimiter =','
+skip_header=1
+);
+
+
+
+AKS.EXTERNAL_STAGES.AWS_STAGE
+
+#TO Create a stages
+CREATE OR REPLACE DATABASE MANAGE_DB;
+
+CREATE OR REPLACE SCHEMA external_stages;
+
+CREATE OR REPLACE STAGE MANAGE_DB.external_stages.aws_stage
+url='s3://bucketsnowflakes3'
+credentials=(aws_key_id='ABCD_DUMMY_ID' aws_secret_key='1234abcd_key')
+
+#to see the list of stages
+list @AWS_STAGE;
+
+USE MANAGE_DB;
+
+USE FIRST_DB;
+
+USE AK;
+
+CREATE DATABASE AKS
+
+CREATE TABLE AKS.PUBLIC.loan_payment2(
+"Loan_ID" STRING,
+"loan_status" STRING,
+"principal" STRING,
+"terms" STRING,
+"effective date" STRING,
+"due_date" STRING,
+"paid_off_time" STRING,
+"past_due_date" STRING,
+"age" STRING,
+"education" STRING,
+"gender" STRING
+);
+
+select * from loan_payment2
+COPY INTO loan_payment2
+FROM s3://bucketsnowflakes3/Loan_payments_data.csv
+file_format=(
+type=csv
+field_delimiter= ','
+skip_header=1)
+
+
+CREATE OR REPLACE DATABASE AKS;
+
+CREATE OR REPLACE SCHEMA external_stages;
+
+CREATE OR REPLACE STAGE AKS.external_stages.aws_stage
+url='s3://bucketsnowflakes3';
+
+
+
+DESC STAGE AKS.external_stages.aws_stage
+
+list @aws_stage
+
+CREATE OR REPLACE TABLE AK.PUBLIC.ORDERS(
+ORDER_ID VARCHAR(30),
+AMOUNT INT,
+PROFIT INT,
+QUANTITY INT,
+CATEGORY VARCHAR(30),
+SUBCATEGORY VARCHAR(30)
+);
+
+SELECT * FROM AK.PUBLIC.ORDERS
+
+COPY INTO AK.PUBLIC.ORDERS
+FROM @AKS.EXTERNAL_STAGES.aws_stage
+file_format=(
+type=csv
+field_delimiter=','
+skip_header=1
+)
+files=('OrderDetails.csv')
+PATTERN = '.*Order.*';
+
+SELECT * FROM AK.PUBLIC.ORDERS
