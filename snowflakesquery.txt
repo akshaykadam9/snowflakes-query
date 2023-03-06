@@ -159,3 +159,15 @@ skip_header=1
 
 
 files=('OrderDetails.csv')
+
+
+#SUBSTRING OB CATEGORICAL DATA-
+
+COPY INTO AK.AK1.ORDERS_CAT
+FROM (
+SELECT S.$1,S.$2,SUBSTRING(S.$5,1,5) FROM @AKS.EXTERNAL_STAGE S)
+FILE_FORMAT=(
+TYPE=CSV
+field_delimiter=','
+skip_header=1)
+files=('OrderDetails.csv')
